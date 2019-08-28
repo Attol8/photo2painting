@@ -6,19 +6,35 @@ import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 from PIL import Image
+from pathlib import Path
 
 from cgan.models import base_model, networks
 
-def get_model(input_nc = 3, output_nc = 3, load_path = 'models\paintings_cyclegan\latest_net_G.pth', norm_layer = functools.partial(torch.nn.InstanceNorm2d, affine=False, track_running_stats=False),  ):
-	"""
-	make it dynamic (accept all networks) 
-	"""
-	model = networks.ResnetGenerator(input_nc, output_nc, norm_layer=norm_layer, n_blocks=9)
-	state_dict = torch.load(load_path, map_location='cpu')
-	model.load_state_dict(state_dict, strict=True)
-	model.eval()
-	return model
+def __patch_instance_norm_state_dict(state_dict, module, keys, i=0):
+    """Fix InstanceNorm checkpoints incompatibility (prior to 0.4)"""
+    key = keys[i]
+    if i + 1 == len(keys):  # at the end, pointing to a parameter/buffer
+        if module.__class__.__name__.startswith('InstanceNorm') and \
+                (key == 'running_mean' or key == 'running_var'):
+            if getattr(module, key) is None:
+                state_dict.pop('.'.join(keys))
+        if module.__class__.__name__.startswith('InstanceNorm') and \
+           (key == 'num_batches_tracked'):
+            state_dict.pop('.'.join(keys))
+    else:
+        __patch_instance_norm_state_dict(state_dict, getattr(module, key), keys, i + 1)
 
+def get_model(style, input_nc = 3, output_nc = 3, norm_layer = functools.partial(torch.nn.InstanceNorm2d, affine=False, track_running_stats=False)):
+    """pick model related to style"""
+    model = networks.ResnetGenerator(input_nc, output_nc, norm_layer=norm_layer, use_dropout=False, n_blocks=9)
+    load_folder = Path('models\paintings_cyclegan')
+    load_path = load_folder / style
+    state_dict = torch.load(load_path, map_location='cpu')
+    for key in list(state_dict.keys()):  # need to copy keys here because we mutate in loop
+        __patch_instance_norm_state_dict(state_dict, model, key.split('.'))
+    model.load_state_dict(state_dict, strict=True)
+    model.eval()
+    return model
 
 def get_photo(image_bytes):
 	"""

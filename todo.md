@@ -4,5 +4,12 @@
 - [x]make it work in debug mode
 - [x]try to go away from cgan as much as possible (load the model and thats it)
 - [ ]tansfer image results to the cloud
-- [ ]change static image to pick any photo
-- [ ]make links to CV nad personal site
+- [ ]make upload any picture available
+- [ ]make links to CV and personal site
+- [ ]Create Gallery with tested paintings/pictures comparison
+- [ ]Create Readme
+- [ ]Fix header links
+- [ ]Transfer Learning using https://docs.fast.ai/vision.learner.html
+- [ ]adapt to pix2pixHD
+
+

@@ -31,3 +31,10 @@ def hello_world():
         painting_image.save(painting_path, format= 'JPEG')
         photo_path = 'static\images\photo.jpg'
         return render_template('result.html', painting_path = painting_path, photo_path= photo_path)
+
+@app.route('/create/', methods=['GET', 'POST'])
+def create():
+    if request.method == 'GET':
+        ModelName = request.args.get('model')
+
+        return render_template('create.html', ModelName= ModelName)
