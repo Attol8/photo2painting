@@ -7,6 +7,7 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 from PIL import Image
 from pathlib import Path
+import os
 
 from cgan.models import base_model, networks
 
@@ -27,8 +28,8 @@ def __patch_instance_norm_state_dict(state_dict, module, keys, i=0):
 def get_model(style, input_nc = 3, output_nc = 3, norm_layer = functools.partial(torch.nn.InstanceNorm2d, affine=False, track_running_stats=False)):
     """pick model related to style"""
     model = networks.ResnetGenerator(input_nc, output_nc, norm_layer=norm_layer, use_dropout=False, n_blocks=9)
-    load_folder = Path('models\paintings_cyclegan')
-    load_path = load_folder / style
+    parent_path = '.\models\paintings_cyclegan'
+    load_path = os.path.join(parent_path, style + '.pth')
     state_dict = torch.load(load_path, map_location='cpu')
     for key in list(state_dict.keys()):  # need to copy keys here because we mutate in loop
         __patch_instance_norm_state_dict(state_dict, model, key.split('.'))
@@ -36,21 +37,21 @@ def get_model(style, input_nc = 3, output_nc = 3, norm_layer = functools.partial
     model.eval()
     return model
 
-def get_photo(image_bytes):
-	"""
-	This function takes an uploaded file, apply various transforms on it and returns it as a PIL Image 
-	"""
+def load_photo(filename):
+    """Load the Image and scale it to 1500px if necessary"""
+    im = Image.open(filename).convert('RGB')
+    max_size = im.size[0] if im.size[0] >= im.size[1] else im.size[1]
+    scale = 1.0
+    if(max_size >= 1500):
+        scale = max_size/1500
+    im = im.resize(
+        (int(im.size[0] / scale), int(im.size[1] / scale)), Image.ANTIALIAS)
+    return(im)
 
-	my_transforms = transforms.Compose([transforms.Resize(256),
-					transforms.CenterCrop(224),
-					transforms.ToTensor(),
-					transforms.Normalize(mean=[0.485, 0.456, 0.406], 
-										std=[0.229, 0.224, 0.225])])
-	if type(image_bytes) == str:
-		image_bytes = str.encode(image_bytes)
-	else:
-		image = Image.open(io.BytesIO(image_bytes))
-	return my_transforms(image).unsqueeze(0)
+def input_photo(im):
+    """apply transforms on photo and get photo tensor"""
+    my_transforms = transforms.Compose([transforms.Resize(128),transforms.ToTensor()])
+    return my_transforms(im).unsqueeze(0)
 
 def tensor_to_PIL(tensor):
         """
@@ -59,6 +60,7 @@ def tensor_to_PIL(tensor):
         This function takes a pytorch tensor and returns a PIL Image
         """
         np_im = tensor2im(tensor, imtype=np.uint8) #numpy image
+
         PIL_img = Image.fromarray(np_im, 'RGB')
         return PIL_img
 
