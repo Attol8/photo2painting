@@ -27,7 +27,7 @@ def __patch_instance_norm_state_dict(state_dict, module, keys, i=0):
 def get_model(style, input_nc = 3, output_nc = 3, norm_layer = functools.partial(torch.nn.InstanceNorm2d, affine=False, track_running_stats=False)):
     """pick model related to style"""
     model = networks.ResnetGenerator(input_nc, output_nc, norm_layer=norm_layer, use_dropout=False, n_blocks=9)
-    parent_path = '.\models\paintings_cyclegan'
+    parent_path = '.\models'
     load_path = os.path.join(parent_path, style + '.pth')
     state_dict = torch.load(load_path, map_location='cpu')
     for key in list(state_dict.keys()):  # need to copy keys here because we mutate in loop

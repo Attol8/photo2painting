@@ -1,11 +1,15 @@
 import sys
 import os
+sys.path.append('cgan')
 from flask import Flask, render_template, request, send_file
 from commons import input_photo, load_photo, tensor_to_PIL
 from flask_dropzone import Dropzone
 from inference import get_painting_tensor
 from pathlib import Path
 from PIL import Image
+
+BUCKET_NAME = 'photo2paintingbucket'
+MODEL_FILE_NAME = 'model.pkl'
 
 app = Flask(__name__)
 
