@@ -1,5 +1,6 @@
 import torch
-from commons import get_model
+from api.commons import get_model
+import os
 
 def get_painting_tensor(photo, style):
     """Forward function used in test time.
@@ -8,7 +9,6 @@ def get_painting_tensor(photo, style):
     It also calls <compute_visuals> to produce additional visualization results
     """
     model = get_model(style)
-
     with torch.no_grad():
         return model.forward(photo)
    

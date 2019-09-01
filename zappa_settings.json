@@ -1,0 +1,11 @@
+{
+    "dev": {
+        "app_function": "api.app.app",
+        "aws_region": "us-east-1",
+        "profile_name": "default",
+        "project_name": "photo2painting",
+        "runtime": "python3.7",
+        "slim_handler": true,
+        "s3_bucket": "zappa-msrajenh2"
+    }
+}

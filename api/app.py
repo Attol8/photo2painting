@@ -2,14 +2,13 @@ import sys
 import os
 sys.path.append('cgan')
 from flask import Flask, render_template, request, send_file
-from commons import input_photo, load_photo, tensor_to_PIL
+from api.commons import input_photo, load_photo, tensor_to_PIL
 from flask_dropzone import Dropzone
-from inference import get_painting_tensor
+from api.inference import get_painting_tensor
 from pathlib import Path
 from PIL import Image
+import boto3
 
-BUCKET_NAME = 'photo2paintingbucket'
-MODEL_FILE_NAME = 'model.pkl'
 
 app = Flask(__name__)
 
@@ -39,7 +38,7 @@ def create():
                 photo = input_photo(photo) #get tensor of photo (input of the model)
 
                 #run inference on the photo
-                painting_tensor = get_painting_tensor(photo, ModelName).cpu()
+                painting_tensor = get_painting_tensor(photo, ModelName).cpu() #load model from S3 and run inference
                 painting_image = tensor_to_PIL(painting_tensor) #transform output tensor to PIL Image
 
                 #save painting output
@@ -59,3 +58,7 @@ def download_files():
 		return send_file(os.path.join(app.root_path, 'static\images', 'result.jpg'), attachment_filename='photo2painting.jpg')
 	except Exception as e:
 		return str(e)
+
+if __name__ == '__main__':    
+    # listen on all IPs 
+    app.run(host='0.0.0.0')

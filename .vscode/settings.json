@@ -1,4 +1,8 @@
 {
     "python.pythonPath": "C:\\Users\\Jacopo\\AppData\\Local\\Continuum\\anaconda3\\envs\\p2penv\\python.exe",
-    "liveServer.settings.fullReload": true
+    "liveServer.settings.fullReload": true,
+    "python.envFile": "${workspaceFolder}/.env",
+    "code-runner.executorMap": {
+        "python": "C:\\Users\\Jacopo\\AppData\\Local\\Continuum\\anaconda3\\envs\\p2penv\\python.exe",
+    }
 }

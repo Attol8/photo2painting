@@ -7,8 +7,11 @@ import torchvision.transforms as transforms
 from PIL import Image
 from pathlib import Path
 import os
+from api.cgan.models import base_model, networks
+import boto3
 
-from cgan.models import base_model, networks
+S3 = boto3.client('s3', region_name='eu-central-1')
+BUCKET_NAME = 'photo2paintingbucket'
 
 def __patch_instance_norm_state_dict(state_dict, module, keys, i=0):
     """Fix InstanceNorm checkpoints incompatibility (prior to 0.4)"""
@@ -26,9 +29,12 @@ def __patch_instance_norm_state_dict(state_dict, module, keys, i=0):
 
 def get_model(style, input_nc = 3, output_nc = 3, norm_layer = functools.partial(torch.nn.InstanceNorm2d, affine=False, track_running_stats=False)):
     """pick model related to style"""
+    #Load model from S3
     model = networks.ResnetGenerator(input_nc, output_nc, norm_layer=norm_layer, use_dropout=False, n_blocks=9)
-    parent_path = '.\models'
-    load_path = os.path.join(parent_path, style + '.pth')
+    key = "api/models/" +  style  + '.pth'
+    #response = S3.get_object(Bucket=BUCKET_NAME, Key=key)
+    #load_path = response['Body'].read().decode('utf-8')
+    load_path = key
     state_dict = torch.load(load_path, map_location='cpu')
     for key in list(state_dict.keys()):  # need to copy keys here because we mutate in loop
         __patch_instance_norm_state_dict(state_dict, model, key.split('.'))
