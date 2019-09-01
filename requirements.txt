@@ -25,7 +25,7 @@ kappa==0.7.0
 kiwisolver==1.1.0
 lambda-packages==0.20.0
 MarkupSafe==1.1.1
-matplotlib==3.1.1
+matplotlib==3.0.1
 mkl-fft==1.0.14
 mkl-random==1.0.2
 mkl-service==2.0.2
