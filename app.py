@@ -1,9 +1,9 @@
 import sys
 import os
-sys.path.append(r'C:\Users\Jacopo\Desktop\photo2painting\photo2painting_webapp\cgan')
 from flask import Flask, render_template, request, send_file
 from commons import input_photo, load_photo, tensor_to_PIL
 from flask_dropzone import Dropzone
+from inference import get_painting_tensor
 from pathlib import Path
 from PIL import Image
 
@@ -35,11 +35,11 @@ def create():
                 photo = input_photo(photo) #get tensor of photo (input of the model)
 
                 #run inference on the photo
-                painting_tensor = get_painting_tensor(photo, ModelName).cpu() 
+                painting_tensor = get_painting_tensor(photo, ModelName).cpu()
                 painting_image = tensor_to_PIL(painting_tensor) #transform output tensor to PIL Image
 
                 #save painting output
-                save_path = os.path.join(app.root_path, 'static\images', 'result' + '.jpg')
+                save_path = os.path.join(app.root_path, 'static\images', 'result.jpg')
                 painting_image.save(save_path)
 
                 return render_template('result-download.html')    
