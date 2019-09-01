@@ -7,6 +7,7 @@
 .flaskenv
 taralla1.pem
 __pycache__
+.vscode
 
 
 # https://github.com/github/gitignore/blob/master/Global/macOS.gitignore
